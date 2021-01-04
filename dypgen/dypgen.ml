@@ -1274,8 +1274,9 @@ let code_parser =
           "(Dyp.Tools.transform_action ";
            "(fun "; 
            (let action_contains_dyp =
-             List.mem "dyp"
-               (String.split_on_char ' ' (String.concat " " [ code_var_list;action;obj_pref; (String_map.find lhs_nt symb_cons_map);]))
+               try 
+                 ignore (Str.search_forward (Str.regexp "\\bdyp\\b") (String.concat " " [ code_var_list;action;obj_pref; (String_map.find lhs_nt symb_cons_map);]) 0);true
+               with Not_found -> false
            in
            if action_contains_dyp then "dyp" else "_");
            " __dypgen_av_list -> (match (";
@@ -1293,40 +1294,41 @@ let code_parser =
            "(fst res), snd res\n";
            " | _ -> raise Dyp.Giveup))) __dypgen_ol __dypgen_pos __dypgen_posl";
            " __dypgen_gd __dypgen_ld __dypgen_lld __dypgen_di __dypgen_p";
-          " __dypgen_nl)"]
-        else
-          let action =
-            if action = "###" then
-              if code_var_list = " _1" then "None"
-              else "Some _1"
-            else action
-          in
-          ["Dyp.Dypgen_action (fun __dypgen_ol __dypgen_pos __dypgen_posl";
-          " __dypgen_gd __dypgen_ld __dypgen_lld __dypgen_di __dypgen_p";
-          " __dypgen_nl ->\n";
-          "(Dyp.Tools.transform_action ";
-           "(fun ";
-           (let action_contains_dyp =
-             List.mem "dyp"
-               (String.split_on_char ' ' (String.concat " " [ code_var_list;obj_pref;(String_map.find lhs_nt symb_cons_map);action]))
+           " __dypgen_nl)"]
+         else
+           let action =
+             if action = "###" then
+               if code_var_list = " _1" then "None"
+               else "Some _1"
+             else action
            in
-           if action_contains_dyp then "dyp" else "_");
-           " __dypgen_av_list -> (match (";
-          "__dypgen_av_list) with [";
-          code_var_list;"] -> ";obj_pref;
-          (String_map.find lhs_nt symb_cons_map);" ";
-          (sharp_line_number pos.pos_fname (pos.pos_lnum-1));
-          "(\n";(space_string (pos.pos_cnum - pos.pos_bol));
-          "(";action;"):";typ;")";
-        (* The extra parentheses around action are useful when the action
-        is empty, it converts it to unit. *)
-          insert_line_number;
-          ",[] | _ -> raise Dyp.Giveup))) __dypgen_ol __dypgen_pos";
-          " __dypgen_posl __dypgen_gd __dypgen_ld __dypgen_lld __dypgen_di";
-          " __dypgen_p __dypgen_nl)"]
+           ["Dyp.Dypgen_action (fun __dypgen_ol __dypgen_pos __dypgen_posl";
+            " __dypgen_gd __dypgen_ld __dypgen_lld __dypgen_di __dypgen_p";
+            " __dypgen_nl ->\n";
+            "(Dyp.Tools.transform_action ";
+            "(fun ";
+            (let action_contains_dyp =
+               try
+                 ignore (Str.search_forward (Str.regexp "\\bdyp\\b") (String.concat " " [ code_var_list;obj_pref;(String_map.find lhs_nt symb_cons_map);action]) 0);true
+               with Not_found -> false
+             in
+             if action_contains_dyp then "dyp" else "_");
+            " __dypgen_av_list -> (match (";
+            "__dypgen_av_list) with [";
+            code_var_list;"] -> ";obj_pref;
+            (String_map.find lhs_nt symb_cons_map);" ";
+            (sharp_line_number pos.pos_fname (pos.pos_lnum-1));
+            "(\n";(space_string (pos.pos_cnum - pos.pos_bol));
+            "(";action;"):";typ;")";
+            (* The extra parentheses around action are useful when the action
+               is empty, it converts it to unit. *)
+            insert_line_number;
+            ",[] | _ -> raise Dyp.Giveup))) __dypgen_ol __dypgen_pos";
+            " __dypgen_posl __dypgen_gd __dypgen_ld __dypgen_lld __dypgen_di";
+            " __dypgen_p __dypgen_nl)"]
         )
     in
-    
+
     String.concat ""
       ["(";code_rule;",\n";code_action;",\n[";code_inherited_val;"])"]
   in
