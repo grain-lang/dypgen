@@ -21,7 +21,7 @@ endif
 
 install: uninstall
 	install -d $(DYPGENLIBDIR)
-	$(OCAMLFIND) install -destdir $(DYPGENLIBDIR) dyp META dyp.cma dyp.cmxa dyp.a dyp.cmi
+	$(OCAMLFIND) install -destdir $(DYPGENLIBDIR) dyp META dyp.cma dyp.cmxa dyp.a dyp.cmi dyp.cmx
 	chmod a-x $(DYPGENLIBDIR)/dyp/META #why is this needed ?
 
 uninstall:

@@ -3,7 +3,7 @@ SOURCES = argument.ml extract_type.mll dypgen_parser.ml dypgen_lexer.mll insert_
 REP = -I ../dyplib
 CAMLC = ocamlc $(REP)
 DYPGEN = ./dypgen --ocamlc "-rectypes -I ../dyplib"
-LIBS=dyp.cma
+LIBS=str.cma dyp.cma
 
 all: dypgen dypgen.opt
 
